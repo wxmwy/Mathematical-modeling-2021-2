@@ -1,4 +1,5 @@
 import numpy as np
+import math
 from openpyxl import load_workbook
 
 
@@ -58,16 +59,76 @@ def read_data(path):
     return start, end, fire, food
 
 
-def problem1(start, end, fire, food):
+def point_dis(start, end):
+    return (end[2] - start[2])**2 + (end[1] - start[1])**2 + (end[0] - start[0])**2
+
+
+def point_cost(start, end):
+    if(start[2] == end[2]):
+        return math.sqrt((end[1] - start[1]) ** 2 + (end[0] - start[0]) ** 2) / 100 * 5
+    if (start[2] > end[2]):
+        return math.sqrt((end[2] - start[2]) ** 2 + (end[1] - start[1]) ** 2 + (end[0] - start[0]) ** 2) / 100 * 4
+    return math.sqrt((end[2] - start[2]) ** 2 + (end[1] - start[1]) ** 2 + (end[0] - start[0]) ** 2) / 100 * 6
+
+
+def problem1(start, end, fire, food, opt):
+    num = 0
+    '''
+    dis_now = point_dis(start, end)
+    fire_earn = 0
+    food_earn = 0
+    fire_safe_point = 0
+    fire_danger_point = 0
+    food_safe_point = 0
+    food_danger_point = 0
+    for i in 100:
+        min_state = min(opt.fire_state, opt.food_state)
+        if(point_cost(opt.point_now, end) < min_state - opt.danger_line):
+            print("find way out!!!")
+            break
+        for j in fire.shape[0]:
+            cost = point_cost(opt.point_now, fire[j])
+            if(cost < min_state - opt.safe_line):
+                earn = fire[j][3] * (point_dis(opt.point_now, end) - point_dis(fire[j] - end))
+                if(earn > fire_earn):
+                    fire_earn = earn
+                    fire_safe_point = j
+        for k in food.shape[0]:
+            cost = point_cost(opt.point_now, food[k])
+            if (cost < min_state - opt.safe_line):
+                earn = food[j][3] * (point_dis(opt.point_now, end) - point_dis(food[j] - end))
+                if (earn > food_earn):
+                    food_earn = earn
+                    food_safe_point = j
+        if(fire_earn == 0 and food_earn == 0):
+            print("search path fail!")
+            exit(-1)
+
+        if(opt.fire_state > opt.food_state):
+    '''
+
+    print()
+    return num
+
+
+def problem2(start, end, fire, food, opt):
+    dis = 0
+    print()
+    return dis
+
+
+def problem3(start, end, fire, food, opt):
     print()
 
 
-def problem2(start, end, fire, food):
-    print()
-
-
-def problem3(start, end, fire, food):
-    print()
+class people_state():
+    def __init__(self):
+        self.fire_state = 10
+        self.food_state = 10
+        self.dead_line = -5
+        self.danger_line = -3
+        self.safe_line = 0
+        self.point_now = []
 
 
 def main():
@@ -77,9 +138,12 @@ def main():
     print("food_cnt is ", food.shape)
     print("start at ", start)
     print("end at ", end)
-    problem1(start, end, fire, food)
-    problem2(start, end, fire, food)
-    problem3(start, end, fire, food)
+    opt1 = people_state()
+    problem1(start, end, fire, food, opt1)
+    opt2 = people_state()
+    problem2(start, end, fire, food, opt2)
+    opt3 = people_state()
+    problem3(start, end, fire, food, opt3)
 
 
 main()
