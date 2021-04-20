@@ -59,17 +59,25 @@ def read_data(path):
     return start, end, fire, food
 
 
+# 求两点间距离
 def point_dis(start, end):
-    return (end[2] - start[2])**2 + (end[1] - start[1])**2 + (end[0] - start[0])**2
+    return math.sqrt((end[2] - start[2]) ** 2 + (end[1] - start[1]) ** 2 + (end[0] - start[0]) ** 2)
 
 
+# 求两点间行走耗费的舒适/饱食值
 def point_cost(start, end):
     if(start[2] == end[2]):
-        return math.sqrt((end[1] - start[1]) ** 2 + (end[0] - start[0]) ** 2) / 100 * 5
+        return point_dis(start, end) / 100 * 5
     if (start[2] > end[2]):
-        return math.sqrt((end[2] - start[2]) ** 2 + (end[1] - start[1]) ** 2 + (end[0] - start[0]) ** 2) / 100 * 4
-    return math.sqrt((end[2] - start[2]) ** 2 + (end[1] - start[1]) ** 2 + (end[0] - start[0]) ** 2) / 100 * 6
+        return point_dis(start, end) / 100 * 4
+    return point_dis(start, end) / 100 * 6
 
+
+# 求两向量夹角的cos值
+def cos_vector(v1, v2):
+    cos = (v1[0] * v2[0] + v1[1] * v2[1] + v1[2] * v2[2]) / (math.sqrt(v1[0] ** 2 + v1[1] ** 2 + v1[2] ** 2) * math.sqrt(v2[0] ** 2 + v2[1] ** 2 + v2[2] ** 2))
+    #print(v1, v2, cos)
+    return cos
 
 def problem1(start, end, fire, food, opt):
     num = 0
@@ -113,7 +121,64 @@ def problem1(start, end, fire, food, opt):
 
 def problem2(start, end, fire, food, opt):
     dis = 0
-    print()
+    opt.point_now = start
+    '''
+    test_line = 10
+    update_line = 0
+    for i in range(100):
+        print("@@@@start iter ", i)
+        fire_earn = 0
+        food_earn = 0
+        fire_point = -1
+        food_point = -1
+        min_state = min(opt.fire_state, opt.food_state)
+        v_now = end - opt.point_now
+        if (point_cost(opt.point_now, end) < min_state - opt.danger_line):
+            dis += point_dis(opt.point_now, end)
+            print("find way out!!!")
+            break
+
+        for j in range(fire.shape[0]):
+            if(opt.point_now[0] == fire[j][0] and opt.point_now[1] == fire[j][1] and opt.point_now[2] == fire[j][2]):
+                continue
+            cost = point_cost(opt.point_now, fire[j])
+            if (cost < min_state - test_line):
+                earn = cos_vector(fire[j][0:3] - opt.point_now, v_now)
+                if (earn > fire_earn):
+                    fire_earn = earn
+                    fire_point = j
+        for k in range(food.shape[0]):
+            if (opt.point_now[0] == food[k][0] and opt.point_now[1] == food[k][1] and opt.point_now[2] == food[k][2]):
+                continue
+            cost = point_cost(opt.point_now, food[k])
+            if (cost < min_state - test_line):
+                earn = cos_vector(food[k][0:3] - opt.point_now, v_now)
+                if (earn > food_earn):
+                    food_earn = earn
+                    food_point = k
+        if(food_earn == 0 and fire_earn == 0):
+            if(test_line <= -5):
+                print("You dead in travel!")
+                exit(-1)
+            else:
+                test_line = test_line - 1
+                continue
+        test_line = int(min_state - 1)
+        if((opt.fire_state < opt.food_state and fire_earn != 0) or food_earn == 0):
+            dis += point_dis(opt.point_now, fire[fire_point])
+            cost = point_cost(opt.point_now, fire[fire_point])
+            opt.fire_state = opt.fire_state - cost + fire[fire_point][3]
+            opt.food_state = opt.food_state - cost
+            opt.point_now = fire[fire_point][0:3]
+        else:
+            dis += point_dis(opt.point_now, food[food_point])
+            cost = point_cost(opt.point_now, food[food_point])
+            opt.food_state = opt.food_state - cost + food[food_point][3]
+            opt.fire_state = opt.fire_state - cost
+            opt.point_now = food[food_point][0:3]
+        #print("i j ", i, " ", j)
+        print("point next ", opt.point_now, " fire left ", opt.fire_state, " food left ", opt.food_state)
+    '''
     return dis
 
 
@@ -139,11 +204,11 @@ def main():
     print("start at ", start)
     print("end at ", end)
     opt1 = people_state()
-    problem1(start, end, fire, food, opt1)
+    #problem1(start, end, fire, food, opt1)
     opt2 = people_state()
     problem2(start, end, fire, food, opt2)
     opt3 = people_state()
-    problem3(start, end, fire, food, opt3)
+    #problem3(start, end, fire, food, opt3)
 
 
 main()
