@@ -122,22 +122,29 @@ def problem1(start, end, fire, food, opt):
 def problem2(start, end, fire, food, opt):
     dis = 0
     opt.point_now = start
-    '''
+    flag = 0
     test_line = 10
     update_line = 0
-    for i in range(100):
-        print("@@@@start iter ", i)
+    for i in range(9000):
+        #print("@@@@start iter ", i)
         fire_earn = 0
         food_earn = 0
+        fire_earn2 = -10
+        food_earn2 = -10
         fire_point = -1
         food_point = -1
+        fire_point2 = -1
+        food_point2 = -1
         min_state = min(opt.fire_state, opt.food_state)
         v_now = end - opt.point_now
         if (point_cost(opt.point_now, end) < min_state - opt.danger_line):
             dis += point_dis(opt.point_now, end)
             print("find way out!!!")
             break
+        if(flag != 1):
+            test_line = min_state - 0.5 * math.log((min_state - opt.dead_line) + 1, 2)
 
+        #print("test_line is ", test_line)
         for j in range(fire.shape[0]):
             if(opt.point_now[0] == fire[j][0] and opt.point_now[1] == fire[j][1] and opt.point_now[2] == fire[j][2]):
                 continue
@@ -147,6 +154,9 @@ def problem2(start, end, fire, food, opt):
                 if (earn > fire_earn):
                     fire_earn = earn
                     fire_point = j
+                if(fire_earn2 < fire[j][3] - 2 * cost):
+                    fire_earn2 = fire[j][3] - 2 * cost
+                    fire_point2 = j
         for k in range(food.shape[0]):
             if (opt.point_now[0] == food[k][0] and opt.point_now[1] == food[k][1] and opt.point_now[2] == food[k][2]):
                 continue
@@ -156,21 +166,31 @@ def problem2(start, end, fire, food, opt):
                 if (earn > food_earn):
                     food_earn = earn
                     food_point = k
-        if(food_earn == 0 and fire_earn == 0):
+                if (food_earn2 < food[k][3] - 2 * cost):
+                    food_earn2 = food[k][3] - 2 * cost
+                    food_point2 = k
+        flag = 0
+        if(food_earn == 0 or fire_earn == 0):
             if(test_line <= -5):
                 print("You dead in travel!")
                 exit(-1)
             else:
-                test_line = test_line - 1
+                flag = 1
+                test_line = test_line - 0.1
                 continue
-        test_line = int(min_state - 1)
-        if((opt.fire_state < opt.food_state and fire_earn != 0) or food_earn == 0):
+
+        #if((opt.fire_state < opt.food_state and fire_earn != -0.2) or food_earn == -0.2):
+        if (opt.fire_state < opt.food_state):
+            if(opt.fire_state < opt.safe_line):
+                fire_point = fire_point2
             dis += point_dis(opt.point_now, fire[fire_point])
             cost = point_cost(opt.point_now, fire[fire_point])
             opt.fire_state = opt.fire_state - cost + fire[fire_point][3]
             opt.food_state = opt.food_state - cost
             opt.point_now = fire[fire_point][0:3]
         else:
+            if (opt.food_state < opt.safe_line):
+                food_point = food_point2
             dis += point_dis(opt.point_now, food[food_point])
             cost = point_cost(opt.point_now, food[food_point])
             opt.food_state = opt.food_state - cost + food[food_point][3]
@@ -178,7 +198,7 @@ def problem2(start, end, fire, food, opt):
             opt.point_now = food[food_point][0:3]
         #print("i j ", i, " ", j)
         print("point next ", opt.point_now, " fire left ", opt.fire_state, " food left ", opt.food_state)
-    '''
+
     return dis
 
 
@@ -192,7 +212,7 @@ class people_state():
         self.food_state = 10
         self.dead_line = -5
         self.danger_line = -3
-        self.safe_line = 0
+        self.safe_line = 3
         self.point_now = []
 
 
